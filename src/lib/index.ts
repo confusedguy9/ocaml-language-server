@@ -5,6 +5,11 @@ import * as types from "./types";
 
 export interface ISettings {
   reason: {
+    command: {
+      useWSL: boolean;
+      shell: string;
+      shellargs: string[];
+    };
     codelens: {
       enabled: boolean;
       unicode: boolean;
@@ -42,6 +47,11 @@ export namespace ISettings {
       codelens: {
         enabled: true,
         unicode: true,
+      },
+      command: {
+        shell: "bash",
+        shellargs: ["-ic"],
+        useWSL: false,
       },
       debounce: {
         linter: 500,

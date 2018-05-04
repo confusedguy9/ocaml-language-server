@@ -6,10 +6,15 @@ export default class BuckleScript {
   public run(): Promise<string> {
     let buffer = "";
     return new Promise(resolve => {
-      // const command = this.session.settings.reason.path.bsb;
-      const command = "bash";
-      const args = ["-ic", "bsb", "-make-world"];
-      const process = this.session.environment.spawn(command, args);
+      const command = this.session.settings.reason.path.bsb;
+
+      const useWSL = this.session.settings.reason.command.useWSL;
+      const shell = this.session.settings.reason.command.shell;
+      const shellargs = this.session.settings.reason.command.shellargs;
+
+      const process = useWSL
+        ? this.session.environment.spawn(shell, [...shellargs, command, "-make-world"])
+        : this.session.environment.spawn(command, ["-make-world"]);
 
       process.on("error", (error: Error & { code: string }) => {
         if ("ENOENT" === error.code) {

@@ -6,10 +6,14 @@ export default class Esy {
   public run(): Promise<string> {
     let buffer = "";
     return new Promise(resolve => {
-      // const command = this.session.settings.reason.path.esy;
-      const command = "build";
-      const args = ["-ic", "esy", "build"];
-      const process = this.session.environment.spawn(command, args);
+      const command = this.session.settings.reason.path.esy;
+
+      const useWSL = this.session.settings.reason.command.useWSL;
+      const shell = this.session.settings.reason.command.shell;
+      const shellargs = this.session.settings.reason.command.shellargs;
+
+      const args = useWSL ? [...shellargs, command, "build"] : ["build"];
+      const process = this.session.environment.spawn(useWSL ? shell : command, args);
 
       process.on("error", (error: Error & { code: string }) => {
         if ("ENOENT" === error.code) {

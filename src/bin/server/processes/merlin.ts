@@ -19,12 +19,18 @@ export default class Merlin implements LSP.Disposable {
   }
 
   public async initialize(): Promise<void> {
-    // const ocamlmerlin = this.session.settings.reason.path.ocamlmerlin;
-    const ocamlmerlin = "ocamlmerlin";
+    const ocamlmerlin = this.session.settings.reason.path.ocamlmerlin;
+
+    const useWSL = this.session.settings.reason.command.useWSL;
+    const shell = this.session.settings.reason.command.shell;
+    const shellargs = this.session.settings.reason.command.shellargs;
+
     const cwd = this.session.initConf.rootUri || this.session.initConf.rootPath;
     const options = cwd ? { cwd: URI.parse(cwd).fsPath } : {};
 
-    (this.process as any) = this.session.environment.spawn("bash", ["-ic", ocamlmerlin], options);
+    (this.process as any) = useWSL
+      ? this.session.environment.spawn(shell, [...shellargs, ocamlmerlin], options)
+      : this.session.environment.spawn(ocamlmerlin, [], options);
 
     // this.process.on("exit", (code, signal) => {
     //   this.session.connection.console.log(JSON.stringify({ code, signal }));
