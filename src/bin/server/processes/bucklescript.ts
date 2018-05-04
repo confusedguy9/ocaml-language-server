@@ -6,8 +6,9 @@ export default class BuckleScript {
   public run(): Promise<string> {
     let buffer = "";
     return new Promise(resolve => {
-      const command = this.session.settings.reason.path.bsb;
-      const args = ["-make-world"];
+      // const command = this.session.settings.reason.path.bsb;
+      const command = "bash";
+      const args = ["-ic", "bsb", "-make-world"];
       const process = this.session.environment.spawn(command, args);
 
       process.on("error", (error: Error & { code: string }) => {

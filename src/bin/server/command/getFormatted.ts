@@ -57,13 +57,21 @@ export async function refmt(session: Session, doc: LSP.TextDocument, range?: LSP
   const otxt = await new Promise<string>((resolve, reject) => {
     let buffer = "";
     let bufferError = "";
-
+    let eee = false;
     refmt.stdout.on("error", (error: Error) => reject(error));
     refmt.stdout.on("data", (data: Buffer | string) => (buffer += data.toString()));
-    refmt.stdout.on("end", () => resolve(buffer));
+    refmt.stdout.on("end", () => {
+      if (!eee) {
+        resolve(buffer);
+      }
+    });
 
-    refmt.stderr.on("data", (data: Buffer | string) => (bufferError += data.toString()));
+    refmt.stderr.on("data", (data: Buffer | string) => {
+      eee = true;
+      bufferError += data.toString();
+    });
     refmt.stderr.on("end", () => {
+      eee = true;
       const diagnostics = refmtParser.parseErrors(bufferError);
       if (diagnostics.length !== 0 || diagnostics.length !== lastDiagnostics.length) {
         session.connection.sendDiagnostics({
@@ -72,6 +80,9 @@ export async function refmt(session: Session, doc: LSP.TextDocument, range?: LSP
         });
       }
       lastDiagnostics = diagnostics;
+      if (eee === true) {
+        resolve("");
+      }
     });
   });
   refmt.unref();

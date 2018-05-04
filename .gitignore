@@ -284,4 +284,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-
+.history
