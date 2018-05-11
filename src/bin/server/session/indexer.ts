@@ -7,7 +7,7 @@ import Session from "./index";
 export default class Indexer implements LSP.Disposable {
   public populated: boolean = false;
   private readonly db: Loki = new Loki(".vscode.reasonml.loki");
-  private readonly symbols: LokiCollection<LSP.SymbolInformation>;
+  private readonly symbols: Loki.Collection<LSP.SymbolInformation>;
 
   constructor(private readonly session: Session) {
     this.symbols = this.db.addCollection<LSP.SymbolInformation>("symbols", {
@@ -19,7 +19,7 @@ export default class Indexer implements LSP.Disposable {
     return;
   }
 
-  public findSymbols(query: LokiQuery): LSP.SymbolInformation[] {
+  public findSymbols(query: LokiQuery<any>): LSP.SymbolInformation[] {
     let result: LSP.SymbolInformation[] = [];
     try {
       result = this.symbols
