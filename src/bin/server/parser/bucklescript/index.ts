@@ -3,7 +3,7 @@ import { createDiagnostic } from "../shared";
 
 const createBucklescriptDiagnostic = createDiagnostic("bucklescript");
 
-function unixPath2win(uri: string) {
+export function unixPath2win(uri: string): string {
   return uri.replace(/mnt\/(\w)/, "$1%3A");
 }
 

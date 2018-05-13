@@ -4,6 +4,8 @@ import { merlin } from "../../../lib";
 import Session from "../session";
 import * as support from "../support";
 
+import * as bucklescript from "../parser/bucklescript";
+
 export default function(session: Session): LSP.RequestHandler<LSP.TextDocumentPositionParams, LSP.Definition, never> {
   return support.cancellableHandler(session, async (event, token) => {
     const find = async (kind: "ml" | "mli"): Promise<null | LSP.Location> => {
@@ -15,7 +17,7 @@ export default function(session: Session): LSP.RequestHandler<LSP.TextDocumentPo
       const uri = response.value.file ? URI.file(response.value.file).toString() : event.textDocument.uri;
       const position = merlin.Position.intoCode(response.value.pos);
       const range = LSP.Range.create(position, position);
-      const location = LSP.Location.create(uri, range);
+      const location = LSP.Location.create(bucklescript.unixPath2win(uri), range);
       return location;
     };
     const locML = await find("ml");
