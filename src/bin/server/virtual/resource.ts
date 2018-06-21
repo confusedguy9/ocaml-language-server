@@ -1,5 +1,5 @@
 import URI from "vscode-uri";
-import { Host } from "./host";
+import { Host, wslPath2Win } from "./host";
 
 export class Resource {
   public static from(source: Host, uri: URI): Resource {
@@ -20,24 +20,9 @@ export class Resource {
         return this.uri;
       case Host.WSL:
         const uri = this.uri.toString(skipEncoding);
-        // FIXME: move this check somewhere earlier and do it only once
-        const localappdataFile = process.env.localappdata;
-        if (null == localappdataFile) throw new Error("LOCALAPPDATA must be set in environment to interpret WSL /home");
-        // FIXME: compute localappdata earlier and do it only once
-        const localappdata = URI.file(localappdataFile).toString(skipEncoding);
-        let match: RegExpMatchArray | null = null;
-        // rewrite /mnt/…
-        if (null != (match = uri.match(/^file:\/\/\/mnt\/([a-zA-Z])\/(.*)$/))) {
-          match.shift();
-          const drive = match.shift() as string;
-          const rest = match.shift() as string;
-          return URI.parse(`file:///${drive}:/${rest}`);
-        }
-        // rewrite /home/…
-        if (null != (match = uri.match(/^file:\/\/\/home\/(.+)$/))) {
-          match.shift();
-          const rest = match.shift() as string;
-          return URI.parse(`${localappdata}/lxss/home/${rest}`);
+        const uriWin = wslPath2Win(uri);
+        if (uri !== uriWin) {
+          return URI.parse(uriWin);
         }
         throw new Error("unreachable");
     }

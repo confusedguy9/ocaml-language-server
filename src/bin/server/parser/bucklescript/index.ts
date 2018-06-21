@@ -1,11 +1,8 @@
 import * as LSP from "vscode-languageserver-protocol";
+import { wslPath2Win } from "../../virtual";
 import { createDiagnostic } from "../shared";
 
 const createBucklescriptDiagnostic = createDiagnostic("bucklescript");
-
-export function unixPath2win(uri: string): string {
-  return uri.replace(/mnt\/(\w)/, "$1%3A");
-}
 
 export function parseErrors(bsbOutput: string): { [key: string]: LSP.Diagnostic[] } {
   const parsedDiagnostics: { [uri: string]: LSP.Diagnostic[] } = {};
@@ -22,7 +19,7 @@ export function parseErrors(bsbOutput: string): { [key: string]: LSP.Diagnostic[
 
   let errorMatch;
   while ((errorMatch = reLevel1Errors.exec(bsbOutput))) {
-    const fileUri = unixPath2win("file://" + errorMatch[1]);
+    const fileUri = wslPath2Win("file://" + errorMatch[1]);
     const startLine = Number(errorMatch[2]) - 1;
     const endLine = Number(errorMatch[2]) - 1;
     const startCharacter = Number(errorMatch[3]);
@@ -60,7 +57,7 @@ export function parseErrors(bsbOutput: string): { [key: string]: LSP.Diagnostic[
   );
 
   while ((errorMatch = reLevel2Errors.exec(bsbOutput))) {
-    const fileUri = unixPath2win("file://" + errorMatch[1]);
+    const fileUri = wslPath2Win("file://" + errorMatch[1]);
     // Suppose most complex case, path/to/file.re 10:20-15:5 message
     const startLine = Number(errorMatch[2]) - 1;
     const startCharacter = Number(errorMatch[3]) - 1;
@@ -110,7 +107,7 @@ export function parseErrors(bsbOutput: string): { [key: string]: LSP.Diagnostic[
   // If nothing was detected before, try to parse interface/implementation mismatch errors
   if (Object.keys(parsedDiagnostics).length === 0) {
     while ((errorMatch = reLevel3Errors.exec(bsbOutput))) {
-      const fileUri = unixPath2win("file://" + errorMatch[1]);
+      const fileUri = wslPath2Win("file://" + errorMatch[1]);
       // No line/char info in this case
       const startLine = 0;
       const startCharacter = 0;
