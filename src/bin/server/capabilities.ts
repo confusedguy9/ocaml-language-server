@@ -12,6 +12,7 @@ const capabilities: LSP.ServerCapabilities = {
   definitionProvider: true,
   documentFormattingProvider: true,
   documentHighlightProvider: true,
+  documentRangeFormattingProvider: true,
   documentSymbolProvider: true,
   hoverProvider: true,
   referencesProvider: true,
