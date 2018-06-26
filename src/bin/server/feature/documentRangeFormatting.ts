@@ -20,13 +20,10 @@ export default function(
     if (document.languageId === "ocaml") otxt = await command.getFormatted.ocpIndent(session, document, range);
     if (document.languageId === "reason") otxt = await command.getFormatted.refmt(session, document, range);
     if (null == otxt || "" === otxt) return [];
+    const documentNew = LSP.TextDocument.create(event.textDocument.uri, result.languageId, result.version + 1, otxt);
+    const editRange = LSP.Range.create(range.start.line, 0, range.end.line + 1, 0);
     const edits: LSP.TextEdit[] = [];
-    edits.push(
-      LSP.TextEdit.replace(
-        LSP.Range.create(document.positionAt(0), document.positionAt(result.getText().length)),
-        otxt,
-      ),
-    );
+    edits.push(LSP.TextEdit.replace(editRange, documentNew.getText(editRange)));
     return edits;
   });
 }

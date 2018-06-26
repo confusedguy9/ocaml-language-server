@@ -8,7 +8,7 @@ import Session from "../session";
 export async function ocamlformat(session: Session, doc: LSP.TextDocument): Promise<string> {
   const text = doc.getText();
   const [fd, path] = await new Promise<[number, string]>(resolve => {
-    tmp.file((err: any, path: string, fd: number, _1) => {
+    tmp.file((err: any, path: string, fd: number, _cb) => {
       if (err) throw err;
       resolve([fd, path]);
     });
