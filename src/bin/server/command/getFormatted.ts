@@ -5,7 +5,7 @@ import Session from "../session";
 
 export async function ocpIndent(session: Session, doc: LSP.TextDocument, range?: LSP.Range): Promise<string> {
   const text = doc.getText();
-  const args: string[] = null != range ? [`--lines=${range.start.line}-${range.end.line}`] : [];
+  const args: string[] = null != range ? [`--lines=${range.start.line + 1}-${range.end.line + 1}`] : [];
   const ocpIndent = new processes.OcpIndent(session, args).process;
   ocpIndent.stdin.write(text);
   ocpIndent.stdin.end();
