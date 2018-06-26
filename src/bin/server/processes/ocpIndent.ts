@@ -9,9 +9,10 @@ export default class OcpIdent {
     const useWSL = session.settings.reason.command.useWSL;
     const shell = session.settings.reason.command.shell;
     const shellargs = session.settings.reason.command.shellargs;
+    const commandline = `"${[command, ...args].join(" ")}"`;
 
     this.process = useWSL
-      ? session.environment.spawn(shell, [...shellargs, command, ...args])
+      ? session.environment.spawn(shell, [...shellargs, commandline])
       : session.environment.spawn(command, args);
   }
 }
