@@ -1,7 +1,47 @@
+import * as fs from "fs";
+import * as tmp from "tmp";
 import * as LSP from "vscode-languageserver-protocol";
 import { refmt as refmtParser } from "../parser";
 import * as processes from "../processes";
 import Session from "../session";
+
+export async function ocamlformat(session: Session, doc: LSP.TextDocument): Promise<string> {
+  const text = doc.getText();
+  const [fd, path] = await new Promise<[number, string]>(resolve => {
+    tmp.file((err: any, path: string, fd: number, _1) => {
+      if (err) throw err;
+      resolve([fd, path]);
+    });
+  });
+  await new Promise<void>(resolve => {
+    fs.write(fd, text, (err: NodeJS.ErrnoException) => {
+      if (err) throw err;
+      resolve();
+    });
+  });
+  const useWSL = session.settings.reason.command.useWSL;
+  let realPath: string = path;
+  if (useWSL) {
+    const match: RegExpMatchArray | null = path.match(/^([A-Z]):(.*)$/);
+    if (null == match) {
+      return Promise.reject();
+    } else {
+      match.shift();
+      const drive = match.shift() as string;
+      const rest = match.shift() as string;
+      realPath = `/mnt/${drive.toLowerCase()}/${rest.replace(/\\/g, "/")}`;
+    }
+  }
+  const ocamlFormat = new processes.Ocamlformat(session, [realPath]).process;
+  const otxt = await new Promise<string>((resolve, reject) => {
+    let buffer = "";
+    ocamlFormat.stdout.on("error", (error: Error) => reject(error));
+    ocamlFormat.stdout.on("data", (data: Buffer | string) => (buffer += data.toString()));
+    ocamlFormat.stdout.on("end", () => resolve(buffer));
+  });
+  ocamlFormat.unref();
+  return otxt;
+}
 
 export async function ocpIndent(session: Session, doc: LSP.TextDocument, range?: LSP.Range): Promise<string> {
   const text = doc.getText();
