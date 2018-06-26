@@ -24,7 +24,7 @@ export async function ocamlformat(session: Session, doc: LSP.TextDocument): Prom
   if (useWSL) {
     const match: RegExpMatchArray | null = path.match(/^([A-Z]):(.*)$/);
     if (null == match) {
-      return Promise.reject();
+      return Promise.reject("Cannot convert path");
     } else {
       match.shift();
       const drive = match.shift() as string;
