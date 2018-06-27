@@ -7,10 +7,10 @@ import Session from "../session";
 
 export async function ocamlformat(session: Session, doc: LSP.TextDocument): Promise<string> {
   const text = doc.getText();
-  const [fd, path] = await new Promise<[number, string]>(resolve => {
-    tmp.file((err: any, path: string, fd: number, _cb) => {
+  const [fd, path, cb] = await new Promise<[number, string, () => void]>(resolve => {
+    tmp.file((err: any, path: string, fd: number, cb: () => void) => {
       if (err) throw err;
-      resolve([fd, path]);
+      resolve([fd, path, cb]);
     });
   });
   await new Promise<void>(resolve => {
@@ -40,6 +40,7 @@ export async function ocamlformat(session: Session, doc: LSP.TextDocument): Prom
     ocamlFormat.stdout.on("end", () => resolve(buffer));
   });
   ocamlFormat.unref();
+  cb();
   return otxt;
 }
 
